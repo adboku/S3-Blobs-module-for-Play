@@ -32,6 +32,13 @@ public class S3Blob implements BinaryField, UserType {
 		this.bucket = bucket;
 		this.key = s3Key;
 	}
+	
+	public S3Blob(String key) {
+		if (exists(key)) {
+			this.bucket = s3Bucket;
+			this.key = key;
+		}
+	}
 
 	@Override
 	public InputStream get() {
@@ -64,6 +71,15 @@ public class S3Blob implements BinaryField, UserType {
 	public boolean exists() {
 		ObjectMetadata om = s3Client.getObjectMetadata(bucket, key);
 		return om != null;
+	}
+	
+	protected boolean exists(String key) {
+		try {
+			ObjectMetadata om = s3Client.getObjectMetadata(s3Bucket, key);
+			return om != null;
+		} catch (Exception e) {}
+		
+		return false;
 	}
 
 	@Override
@@ -115,6 +131,10 @@ public class S3Blob implements BinaryField, UserType {
 	@Override
 	public boolean isMutable() {
 		return true;
+	}
+	
+	public boolean hasKey() {
+		return key != null && !key.isEmpty();
 	}
 
 	@Override
